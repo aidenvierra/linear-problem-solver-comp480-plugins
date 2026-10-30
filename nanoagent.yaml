@@ -1,0 +1,45 @@
+_ > nanoagent.plugin.v0001.ManifestConfig:
+id: av-linear-solver
+name: Linear System Solver
+version: 0.1.0
+status: ready
+spec: nanoagent.plugin/v0001
+
+runtime > nanoagent.plugin.v0001.RuntimeConfig:
+  type: mcp_stdio
+  command: [uv, run, --frozen, python, -m, plugin]
+
+permissions > nanoagent.plugin.v0001.PermissionsConfig:
+  network > nanoagent.plugin.v0001.NetworkConfig:
+    hosts: []
+  filesystem > nanoagent.plugin.v0001.FilesystemConfig:
+    write: [workspace]
+
+# One entry per contract.Tool; its input and output classes are contract.TOOLS's.
+tools > dict[contract.Tool, nanoagent.plugin.v0001.ToolConfig]:
+  get_system:
+    description: "Show a system of linear equations Ax = b by its id: the integer matrix A and right-hand side b"
+  determinant:
+    description: Compute the exact determinant of any square integer matrix
+  system_record:
+    description: The system itself, pinned as the verifier's reference
+
+# One entry per contract.Task; its input class is contract.TASKS's.
+tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
+  get-system:
+    description: Show a system of linear equations
+    runner: tool
+    tools: [get_system]
+    reference: null
+    instructions: Return the system of linear equations with this id.
+  solve-system:
+    description: Solve a system of linear equations exactly, or show it has no or infinitely many solutions
+    runner: agent
+    tools: [get_system, determinant]
+    reference: system_record
+    instructions: |-
+      Read the system Ax = b with get_system. Decide whether it has exactly one solution, no solution, or infinitely many, and find x exactly.
+      determinant computes the exact determinant of any square integer matrix you pass it, such as A or A with one column replaced by b.
+      You have a budget of 12 tool calls in all, get_system included; after that every tool fails. Plan your calls.
+      Submit the status and x1..xn as exact integers or fractions such as -7/3, never decimals: the solution when it is unique, any one solution when there are infinitely many, and an empty list when there is none.
+      Every reply must be a tool call: never answer with text alone, or the run ends with nothing submitted. When you are done, stuck, or near the end of your budget, call submit. Set gave_up to false when you believe your answer is right; if you could not solve it, set gave_up to true and submit your best attempt, or empty values.

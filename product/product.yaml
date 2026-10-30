@@ -1,0 +1,12 @@
+_ > nanoagent.plugin.v0001.ProductConfig:
+tagline: "Can an AI agent solve equations exactly, with no rounding?"
+summary: "Six systems of linear equations, from two unknowns to four with answers like 569/399, plus one with no solution and one with infinitely many. The agent must say which kind each is and give exact fractions, with only 12 tool calls. Exact arithmetic checks every value."
+highlights:
+  - "Answers must be exact fractions: no rounding is accepted"
+  - "Tests whether the agent spots systems with no or infinitely many solutions"
+  - "Partial credit for the right status and each right value"
+steps:
+  - "Pick a system, lin-01 to lin-06"
+  - "The agent reads the equations and works them out, using determinant"
+  - "It submits the kind of solution and the exact values"
+  - "The verdict checks them with exact arithmetic"
